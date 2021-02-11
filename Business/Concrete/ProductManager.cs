@@ -6,6 +6,7 @@ using Entities.Concrete;
 using Entities.DTOs;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Business.Concrete
@@ -39,23 +40,27 @@ namespace Business.Concrete
 
         public IDataResult<List<Product>> GetAllByCategoryId(int id)
         {
-            return _productDal.GetAll(p => p.CategoryId == id);
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.CategoryId == id),Messages.ProductListed);
         }
 
         public IDataResult<Product> GetById(int productId)
         {
-            return _productDal.Get(p => p.ProductId == productId);
+            return new SuccessDataResult<Product>(_productDal.GetAll(x=>x.ProductId==productId).FirstOrDefault(), Messages.ProductListed);
         }
 
         public IDataResult<List<Product>> GetByUnitPrice(decimal min, decimal max)
         {
             
-            return _productDal.GetAll(p => p.UnitPrice <=max && p.UnitPrice>=min);
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.UnitPrice <=max && p.UnitPrice>=min),Messages.ProductListed);
         }
 
         public IDataResult<List<ProductDetailDto>> GetProductDetails()
         {
-            return _productDal.GetProductDetails();
+            if (DateTime.Now.Hour == 11)
+            {
+                return new ErrorDataResult<List<ProductDetailDto>>(Messages.MaintenceTime);
+            }
+            return new SuccessDataResult<List<ProductDetailDto>>(_productDal.GetProductDetails(),Messages.ProductListed);
         }
     }
 }
